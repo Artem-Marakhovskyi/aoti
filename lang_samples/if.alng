@@ -1,0 +1,5 @@
+cond arr{i} eq True 
+begin
+    varname assign i mul k plu 2
+    arr{i} assign varname
+end
