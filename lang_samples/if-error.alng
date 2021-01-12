@@ -1,5 +1,5 @@
 cond arr{i} eq True 
 begin
-    !varname assign i mul k plu 2
-    arr{i} a#ssign varname
+    !varname assign i mul k plu 2 nl
+    arr{i} a#ssign varname nl
 end

@@ -28,7 +28,7 @@ class Lexer:
 
     def __insert_key_words(self):
         self.__append_lexemes(
-            ('cycle', 'for'),
+            ('cycle\s*\(', 'for'),
             ('cond', 'if'),
             ('begin', 'block-start'),
             ('end', 'block-end'),
@@ -42,10 +42,11 @@ class Lexer:
 
     def __insert_key_symbols(self):
         self.__append_lexemes(
-            ('{', 'bracket_start'),
-            ('}', 'bracket_end'),
+            ('{', 'array_index_start'),
+            ('}', 'array_index_end'),
             ('\(', 'parenthesis_start'),
             ('\)', 'parenthesis_end'),
+            ('nl', 'statement-end'),
             ('\,', 'comma'))
 
     def __insert_arithmetical_operations(self):

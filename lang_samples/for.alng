@@ -1,11 +1,8 @@
 cycle(
     i assign 1,
     i mul k less 4,
-    {
-        inc i,
-        k eq 2
-    })
+    inc i)
 begin
-    varname assign i mul k plu 2
-    arr{i} assign varname
+    varname assign i mul k plu 2 nl
+    arr{i} assign varname nl
 end
