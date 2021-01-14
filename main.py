@@ -1,4 +1,5 @@
 import lexer
+import syntax
 
 def read_and_run_lexer(filename = None):
     return lexer.Lexer().analyze(get_file_content(filename))

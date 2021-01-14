@@ -11,7 +11,7 @@ class Lexeme:
 
 
 class Lexer:
-    def analyze(self, code: str):
+    def analyze(self, code: str) -> 'list(lexeme)':
         while len(code) > 0:
             code, lexeme = self.__find_next_lexeme(code)
             self.lexemes.append(lexeme)
