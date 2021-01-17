@@ -111,6 +111,8 @@ class SyntaxTable:
                     RulesEnum.VARIABLE,
                     TokenEnum.ARRAY_INDEX_END
                 ],
+                TokenEnum.ARITHMETICAL_BINARY: [RulesEnum.NONE],
+                TokenEnum.ARRAY_INDEX_END: [RulesEnum.NONE],
                 TokenEnum.ASSIGN: [RulesEnum.NONE],
                 TokenEnum.NEWLINE: [RulesEnum.NONE],
                 TokenEnum.BLOCK_END: [RulesEnum.NONE],
@@ -124,15 +126,10 @@ class SyntaxTable:
                     TokenEnum.ARITHMETICAL_UNARY,
                     RulesEnum.VARIABLE
                 ],
-                TokenEnum.COMMA: [
-                    RulesEnum.NONE
-                ],
-                TokenEnum.NEWLINE: [
-                    RulesEnum.NONE
-                ],
+                TokenEnum.COMMA: [RulesEnum.NONE],
+                TokenEnum.NEWLINE: [RulesEnum.NONE],
                 TokenEnum.VARNAME: [
                     RulesEnum.VARIABLE,
-                    
                     RulesEnum.NOT_EMPTY_RESULT_STATEMENT
                 ],
                 TokenEnum.LITERAL_NUMBER: [
@@ -146,6 +143,14 @@ class SyntaxTable:
                 ],
                 TokenEnum.ARITHMETICAL_BINARY: [
                     RulesEnum.BINARY_OPERATION
+                ],
+                TokenEnum.LITERAL_NUMBER: [
+                    TokenEnum.LITERAL_NUMBER,
+                    RulesEnum.NOT_EMPTY_RESULT_STATEMENT
+                ],
+                TokenEnum.LITERAL_BOOLEAN: [
+                    TokenEnum.LITERAL_BOOLEAN,
+                    RulesEnum.NOT_EMPTY_RESULT_STATEMENT
                 ],
                 TokenEnum.CYCLE_PARENTHESIS_END: [RulesEnum.NONE],
                 TokenEnum.NEWLINE: [TokenEnum.NEWLINE, RulesEnum.STATEMENT],

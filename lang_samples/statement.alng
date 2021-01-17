@@ -1,4 +1,4 @@
 begin
     varname assign i nl
-    a{arindex} assign i nl
+    a{arindex} assign i mul 2 nl
 end
