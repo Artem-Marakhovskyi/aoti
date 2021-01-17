@@ -26,13 +26,31 @@ class SyntaxAnalyzer:
     def __init__(self, input):
         self.stack = LexemeStack()
         self.input = input
-        self.rules = self.prepareRules()
+        self.rules = SyntaxTable()
 
     def analyze(self):
-        pass
+        self.stack.push(RulesEnum.STATEMENT)
+        while not self.stack.isEmpty():
+            stackTop = self.stack.peek()
+            if isinstance(stackTop, TokenEnum):
+                if stackTop == self.input[0].marker:
+                    self.stack.pop()
+                    inp = self.input.pop(0)
+                    print('stack top was a terminal: %s' % inp)
+                else:
+                    raise AssertionError()
+            else:
+                rule = self.rules[stackTop]
+                if rule != TokenEnum.ERROR:
+                    tkn = self.input[0].marker
+                    rule = rule[tkn]
+                    self.stack.pop()
+                    for x in range(len(rule)):
+                        self.stack.push(rule[len(rule) - 1 - x])
+                    print(rule)
+                else:
+                    print('error')
 
-    def prepareRules(self):
-        self.syntaxTable = SyntaxTable()
 
 
 class SyntaxTable:
@@ -168,3 +186,6 @@ class LexemeStack:
 
     def pop(self):
         return self.source.pop(-1)
+
+    def isEmpty(self):
+        return len(self.source) == 0
