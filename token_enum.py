@@ -1,0 +1,21 @@
+from enum import Enum
+
+
+class TokenEnum(Enum):
+    ERROR = 0,
+    CYCLE_FOR = 1,
+    CONDITION_IF = 2,
+    BLOCK_START = 3,
+    BLOCK_END = 4,
+    COMPARABLE = 5,
+    LITERAL_NUMBER = 6,
+    LITERAL_BOOLEAN = 7,
+    ARRAY_INDEX_START = 8,
+    ARRAY_INDEX_END = 9,
+    CYCLE_PARENTHESIS_END = 10,
+    NEWLINE = 11,
+    COMMA = 12,
+    ARITHMETICAL_UNARY = 13,
+    ARITHMETICAL_BINARY = 14,
+    ASSIGN = 15,
+    VARNAME = 16
