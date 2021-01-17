@@ -18,6 +18,8 @@
 #  }
 # while (X!='$'); /*магазин пуст*/
 # if (InSym != '$') error(); /*Не вся строка прочитана*/
+from aifc import Error
+
 from aoti.rules_enum import RulesEnum
 from aoti.token_enum import TokenEnum
 
@@ -33,24 +35,35 @@ class SyntaxAnalyzer:
         while not self.stack.isEmpty():
             stackTop = self.stack.peek()
             if isinstance(stackTop, TokenEnum):
-                if stackTop == self.input[0].marker:
+                in_symbol = self.input[0].marker
+                if stackTop == in_symbol:
                     self.stack.pop()
                     inp = self.input.pop(0)
-                    print('stack top was a terminal: %s' % inp)
+                    print('Removed from input & stack: %s' % inp)
                 else:
-                    raise AssertionError()
+                    raise SyntaxAnalyzerError('Input symbol %s is not matched with stack top %s\r\n%s' % (stackTop, inp, self.getState()))
             else:
                 rule = self.rules[stackTop]
                 if rule != TokenEnum.ERROR:
                     tkn = self.input[0].marker
-                    rule = rule[tkn]
+                    rule_elements = rule[tkn]
                     self.stack.pop()
-                    for x in range(len(rule)):
-                        self.stack.push(rule[len(rule) - 1 - x])
-                    print(rule)
+                    for x in range(len(rule_elements)):
+                        if rule_elements[len(rule_elements) - 1 - x] != RulesEnum.NONE:
+                            self.stack.push(rule_elements[len(rule_elements) - 1 - x])
+                    rule_applied = 'Rule applied: %s' % (','.join([str(x) for x in rule_elements]))
+                    print('Rule applied: %s' % rule_applied)
                 else:
-                    print('error')
+                    raise SyntaxAnalyzerError('Syntax error happened.\r\n%s' % (self.getState()))
 
+    def getState(self):
+        str_state = 'Stack: '
+        for x in self.stack:
+            str_state += x
+        str_state += '\r\nInput: '
+        for x in self.input:
+            str_state += str(x) + ', '
+        return str_state
 
 
 class SyntaxTable:
@@ -110,6 +123,9 @@ class SyntaxTable:
                     RulesEnum.VARIABLE,
                     TokenEnum.ARRAY_INDEX_END
                 ],
+                TokenEnum.ASSIGN: [RulesEnum.NONE],
+                TokenEnum.NEWLINE: [RulesEnum.NONE],
+                TokenEnum.BLOCK_END: [RulesEnum.NONE],
             },
             RulesEnum.RESULT_STATEMENT: {
                 TokenEnum.LITERAL_BOOLEAN: [
@@ -142,15 +158,9 @@ class SyntaxTable:
                 TokenEnum.ARITHMETICAL_BINARY: [
                     RulesEnum.BINARY_OPERATION
                 ],
-                TokenEnum.CYCLE_PARENTHESIS_END: [
-                    RulesEnum.NONE
-                ],
-                TokenEnum.NEWLINE: [
-                    RulesEnum.NONE
-                ],
-                TokenEnum.COMMA: [
-                    RulesEnum.NONE
-                ]
+                TokenEnum.CYCLE_PARENTHESIS_END: [RulesEnum.NONE],
+                TokenEnum.NEWLINE: [TokenEnum.NEWLINE, RulesEnum.NONE],
+                TokenEnum.COMMA: [RulesEnum.NONE]
             },
             RulesEnum.UNARY_OPERATION: {
                 TokenEnum.VARNAME: [
@@ -189,3 +199,17 @@ class LexemeStack:
 
     def isEmpty(self):
         return len(self.source) == 0
+
+    def __iter__(self):
+        return iter(self.source)
+
+
+class SyntaxAnalyzerError(Error):
+    def __init__(self, message):
+        self.message = message
+
+    def __repr__(self):
+        return self.message
+
+    def __str__(self):
+        return self.message

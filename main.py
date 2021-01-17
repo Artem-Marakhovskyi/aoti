@@ -1,6 +1,6 @@
 import lexer
 
-from aoti.syntax_analyzer import SyntaxAnalyzer
+from aoti.syntax_analyzer import SyntaxAnalyzer, SyntaxAnalyzerError
 from aoti.token_enum import TokenEnum
 
 
@@ -20,4 +20,7 @@ if __name__ == '__main__':
     for x in read_and_run_lexer(filename):
         print(x)
     analyzer = SyntaxAnalyzer(tokens)
-    analyzer.analyze()
+    try:
+        analyzer.analyze()
+    except SyntaxAnalyzerError as sae:
+        print(sae)
