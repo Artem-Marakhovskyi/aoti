@@ -81,6 +81,7 @@ class SyntaxTable:
                     RulesEnum.STATEMENT,
                     TokenEnum.BLOCK_END
                 ],
+                TokenEnum.BLOCK_END: [RulesEnum.NONE],
                 TokenEnum.ARITHMETICAL_UNARY: [
                     TokenEnum.ARITHMETICAL_UNARY,
                     RulesEnum.VARIABLE
@@ -131,6 +132,7 @@ class SyntaxTable:
                 ],
                 TokenEnum.VARNAME: [
                     RulesEnum.VARIABLE,
+                    
                     RulesEnum.NOT_EMPTY_RESULT_STATEMENT
                 ],
                 TokenEnum.LITERAL_NUMBER: [
@@ -146,7 +148,7 @@ class SyntaxTable:
                     RulesEnum.BINARY_OPERATION
                 ],
                 TokenEnum.CYCLE_PARENTHESIS_END: [RulesEnum.NONE],
-                TokenEnum.NEWLINE: [TokenEnum.NEWLINE, RulesEnum.NONE],
+                TokenEnum.NEWLINE: [TokenEnum.NEWLINE, RulesEnum.STATEMENT],
                 TokenEnum.COMMA: [RulesEnum.NONE]
             },
             RulesEnum.UNARY_OPERATION: {

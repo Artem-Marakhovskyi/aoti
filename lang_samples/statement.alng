@@ -1,3 +1,4 @@
 begin
     varname assign i nl
+    a{arindex} assign i nl
 end
