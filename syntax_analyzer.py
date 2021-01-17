@@ -1,25 +1,4 @@
-# Поместить '$', затем S в магазин;
-# do
-# 	{X=верхний символ магазина;
-# if (X - терминал)
-# 	if (X==InSym)
-# 		{удалить X из магазина;
-# 		InSym=очередной символ;
-# 		}
-# 	else {error(); break;}
-# else if (X - нетерминал)
-# 	if (M[X,InSym]=="X->Y1Y2...Yk")
-# 	 {удалить X из магазина;
-# 	  поместить Yk,Yk-1,...Y1 в магазин
-# 		(Y1 на верхушку);
-# 	  вывести правило X->Y1Y2...Yk;
-# 	 }
-# 	else {error(); break;} /*вход таблицы M пуст*/
-#  }
-# while (X!='$'); /*магазин пуст*/
-# if (InSym != '$') error(); /*Не вся строка прочитана*/
 from aifc import Error
-
 from aoti.rules_enum import RulesEnum
 from aoti.token_enum import TokenEnum
 
@@ -29,41 +8,49 @@ class SyntaxAnalyzer:
         self.stack = LexemeStack()
         self.input = input
         self.rules = SyntaxTable()
+        self.stack.push(RulesEnum.STATEMENT)
 
     def analyze(self):
-        self.stack.push(RulesEnum.STATEMENT)
         while not self.stack.isEmpty():
-            stackTop = self.stack.peek()
-            if isinstance(stackTop, TokenEnum):
+            print('\r\n')
+            stack_top = self.stack.peek()
+            if isinstance(stack_top, TokenEnum):
                 in_symbol = self.input[0].marker
-                if stackTop == in_symbol:
+                if stack_top == in_symbol:
                     self.stack.pop()
                     inp = self.input.pop(0)
-                    print('Removed from input & stack: %s' % inp)
+                    print('Removed from input & stack: %s\r\n%s' % (inp, self.get_state()))
                 else:
-                    raise SyntaxAnalyzerError('Input symbol %s is not matched with stack top %s\r\n%s' % (stackTop, inp, self.getState()))
+                    raise SyntaxAnalyzerError('Input symbol %s is not matched with stack top %s\r\n%s'
+                                              % (stack_top, inp, self.get_state()))
             else:
-                rule = self.rules[stackTop]
+                rule = self.rules[stack_top]
                 if rule != TokenEnum.ERROR:
                     tkn = self.input[0].marker
                     rule_elements = rule[tkn]
                     self.stack.pop()
-                    for x in range(len(rule_elements)):
-                        if rule_elements[len(rule_elements) - 1 - x] != RulesEnum.NONE:
-                            self.stack.push(rule_elements[len(rule_elements) - 1 - x])
-                    rule_applied = 'Rule applied: %s' % (','.join([str(x) for x in rule_elements]))
-                    print('Rule applied: %s' % rule_applied)
+                    self.push_rules_to_stack(rule_elements)
+                    print('Rule applied: %s\r\n%s' % (','.join([str(x) for x in rule_elements]), self.get_state()))
                 else:
-                    raise SyntaxAnalyzerError('Syntax error happened.\r\n%s' % (self.getState()))
+                    raise SyntaxAnalyzerError('Syntax error happened.\r\n%s' % (self.get_state()))
 
-    def getState(self):
+    def get_state(self):
         str_state = 'Stack: '
         for x in self.stack:
-            str_state += x
+            str_state += str(x) + ', '
+        if self.stack.isEmpty():
+            str_state += '<EMPTY>'
         str_state += '\r\nInput: '
         for x in self.input:
             str_state += str(x) + ', '
+        if len(self.input) == 0:
+            str_state += '<EMPTY>'
         return str_state
+
+    def push_rules_to_stack(self, rule_elements):
+        for x in range(len(rule_elements)):
+            if rule_elements[len(rule_elements) - 1 - x] != RulesEnum.NONE:
+                self.stack.push(rule_elements[len(rule_elements) - 1 - x])
 
 
 class SyntaxTable:
