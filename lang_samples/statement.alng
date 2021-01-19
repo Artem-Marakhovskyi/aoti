@@ -1,4 +1,5 @@
+cond arr{i} eq True 
 begin
-    varname assign i nl
-    a{arindex} assign i mul 2 nl
+    varname assign i mul k plu 2 nl
+    arr{i} assign varname nl
 end

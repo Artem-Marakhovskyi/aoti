@@ -36,7 +36,7 @@ class SyntaxAnalyzer:
 
     def get_state(self):
         str_state = 'Stack: '
-        for x in self.stack:
+        for x in self.stack.copy_reverse():
             str_state += str(x) + ', '
         if self.stack.isEmpty():
             str_state += '<EMPTY>'
@@ -71,7 +71,7 @@ class SyntaxTable:
                 ],
                 TokenEnum.CONDITION_IF: [
                     TokenEnum.CONDITION_IF,
-                    RulesEnum.BINARY_OPERATION,
+                    RulesEnum.NOT_EMPTY_RESULT_STATEMENT,
                     TokenEnum.BLOCK_START,
                     RulesEnum.STATEMENT,
                     TokenEnum.BLOCK_END
@@ -111,9 +111,11 @@ class SyntaxTable:
                     RulesEnum.VARIABLE,
                     TokenEnum.ARRAY_INDEX_END
                 ],
+                TokenEnum.COMPARABLE: [RulesEnum.NONE],
                 TokenEnum.ARITHMETICAL_BINARY: [RulesEnum.NONE],
                 TokenEnum.ARRAY_INDEX_END: [RulesEnum.NONE],
                 TokenEnum.ASSIGN: [RulesEnum.NONE],
+                TokenEnum.CYCLE_PARENTHESIS_END: [RulesEnum.NONE],
                 TokenEnum.NEWLINE: [RulesEnum.NONE],
                 TokenEnum.BLOCK_END: [RulesEnum.NONE],
             },
@@ -152,6 +154,11 @@ class SyntaxTable:
                     TokenEnum.LITERAL_BOOLEAN,
                     RulesEnum.NOT_EMPTY_RESULT_STATEMENT
                 ],
+                TokenEnum.VARNAME: [
+                    RulesEnum.VARIABLE,
+                    RulesEnum.NOT_EMPTY_RESULT_STATEMENT
+                ],
+                TokenEnum.BLOCK_START: [RulesEnum.NONE],
                 TokenEnum.CYCLE_PARENTHESIS_END: [RulesEnum.NONE],
                 TokenEnum.NEWLINE: [TokenEnum.NEWLINE, RulesEnum.STATEMENT],
                 TokenEnum.COMMA: [RulesEnum.NONE]
@@ -196,6 +203,9 @@ class LexemeStack:
 
     def __iter__(self):
         return iter(self.source)
+
+    def copy_reverse(self):
+        return (self.source)
 
 
 class SyntaxAnalyzerError(Error):
