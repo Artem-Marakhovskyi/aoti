@@ -166,16 +166,25 @@ class Errors( object ):
 
 class Parser( object ):
    _EOF = 0
-   _ident = 1
-   _number = 2
-   _assign = 3
-   _minus = 4
-   _plus = 5
-   _multiply = 6
-   _divide = 7
-   _print = 8
-   _newline = 9
-   maxT = 12
+   _identifier = 1
+   _print = 2
+   _result = 3
+   _assign = 4
+   _mul = 5
+   _div = 6
+   _plu = 7
+   _min = 8
+   _inc = 9
+   _dec = 10
+   _blockStart = 11
+   _blockEnd = 12
+   _if = 13
+   _cycleStart = 14
+   _cycleEnd = 15
+   _comma = 16
+   _number = 17
+   _newline = 18
+   maxT = 20
 
    T          = True
    x          = False
@@ -297,35 +306,78 @@ class Parser( object ):
             self.Get( )
          return self.StartOf( syFol )
 
-   def ARITHMETICAL( self ):
-      self.STATEMENT()
-      while self.la.kind == 1 or self.la.kind == 8:
-         self.STATEMENT()
+   def ALNG( self ):
+      self.GENERALSTATEMENT()
+      if (self.StartOf(1)):
+         self.GENERALSTATEMENT()
 
+   def GENERALSTATEMENT( self ):
+      if self.la.kind == 13 or self.la.kind == 14:
+         self.BLOCKSTATEMENT()
+      elif self.la.kind == 1 or self.la.kind == 2 or self.la.kind == 3:
+         self.LINESTATEMENT()
+      else:
+         self.SynErr(21)
 
-   def STATEMENT( self ):
-      while self.la.kind == 8:
+   def BLOCKSTATEMENT( self ):
+      if self.la.kind == 14:
+         self.CYCLESTATEMENT()
+      elif self.la.kind == 13:
+         self.CONDITIONSTATEMENT()
+      else:
+         self.SynErr(22)
+
+   def LINESTATEMENT( self ):
+      if self.la.kind == 3:
+         self.RESULTSTATEMENT()
+      elif self.la.kind == 1 or self.la.kind == 2:
+         self.NONRESULTSTATEMENT()
+      else:
+         self.SynErr(23)
+
+   def CYCLESTATEMENT( self ):
+      self.Expect(14)
+      if (self.la.kind == 1 or self.la.kind == 2 or self.la.kind == 3):
+         self.LINESTATEMENT()
+      self.Expect(16)
+      if (self.la.kind == 3):
+         self.RESULTSTATEMENT()
+      self.Expect(16)
+      if (self.la.kind == 1 or self.la.kind == 2 or self.la.kind == 3):
+         self.LINESTATEMENT()
+      self.Expect(15)
+      self.Expect(11)
+      self.GENERALSTATEMENT()
+      self.Expect(12)
+
+   def CONDITIONSTATEMENT( self ):
+      self.Expect(13)
+      self.RESULTSTATEMENT()
+      self.Expect(11)
+      self.GENERALSTATEMENT()
+      self.Expect(12)
+
+   def RESULTSTATEMENT( self ):
+      self.Expect(3)
+      val = self.LOWEXPR()
+      self.Expect(18)
+
+   def NONRESULTSTATEMENT( self ):
+      while self.la.kind == 2:
          self.Get( )
          self.shouldWrite() 
 
       spix = self.IDENTIFIER()
-      while self.la.kind == 3:
-         self.Get( )
-         val = self.LOWEXPR()
-         self.setVar(spix, val)  
-
-      self.Expect(9)
+      self.Expect(4)
+      val = self.LOWEXPR()
+      self.setVar(spix, val)  
+      self.Expect(18)
       self.writeValIfShould(spix) 
-
-   def IDENTIFIER( self ):
-      self.Expect(1)
-      spix = self.getSpix()   
-      return spix
 
    def LOWEXPR( self ):
       exprVal = self.HIGHEXPR()
-      while self.la.kind == 4 or self.la.kind == 5:
-         if self.la.kind == 5:
+      while self.la.kind == 7 or self.la.kind == 8:
+         if self.la.kind == 7:
             self.Get( )
             termVal = self.HIGHEXPR()
             exprVal += termVal 
@@ -336,10 +388,15 @@ class Parser( object ):
 
       return exprVal
 
+   def IDENTIFIER( self ):
+      self.Expect(1)
+      spix = self.getSpix()   
+      return spix
+
    def HIGHEXPR( self ):
       termVal = self.VALUE()
-      while self.la.kind == 6 or self.la.kind == 7:
-         if self.la.kind == 6:
+      while self.la.kind == 5 or self.la.kind == 6:
+         if self.la.kind == 5:
             self.Get( )
             factVal = self.VALUE()
             termVal *= factVal 
@@ -354,15 +411,15 @@ class Parser( object ):
       if self.la.kind == 1:
          spix = self.IDENTIFIER()
          factVal = self.getVar(spix) 
-      elif self.la.kind == 2:
+      elif self.la.kind == 17:
          self.Get( )
          factVal = self.getNumber()  
-      elif self.la.kind == 10:
+      elif self.la.kind == 19:
          self.Get( )
          factVal = self.LOWEXPR()
-         self.Expect(11)
+         self.Expect(15)
       else:
-         self.SynErr(13)
+         self.SynErr(24)
       return factVal
 
 
@@ -372,31 +429,43 @@ class Parser( object ):
       self.la = Token( )
       self.la.val = u''
       self.Get( )
-      self.ARITHMETICAL()
+      self.ALNG()
       self.Expect(0)
 
 
    set = [
-      [T,x,x,x, x,x,x,x, x,x,x,x, x,x]
+      [T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x],
+      [x,T,T,T, x,x,x,x, x,x,x,x, x,T,T,x, x,x,x,x, x,x]
 
       ]
 
    errorMessages = {
       
       0 : "EOF expected",
-      1 : "ident expected",
-      2 : "number expected",
-      3 : "assign expected",
-      4 : "minus expected",
-      5 : "plus expected",
-      6 : "multiply expected",
-      7 : "divide expected",
-      8 : "print expected",
-      9 : "newline expected",
-      10 : "\"(\" expected",
-      11 : "\")\" expected",
-      12 : "??? expected",
-      13 : "invalid VALUE",
+      1 : "identifier expected",
+      2 : "print expected",
+      3 : "result expected",
+      4 : "assign expected",
+      5 : "mul expected",
+      6 : "div expected",
+      7 : "plu expected",
+      8 : "min expected",
+      9 : "inc expected",
+      10 : "dec expected",
+      11 : "blockStart expected",
+      12 : "blockEnd expected",
+      13 : "if expected",
+      14 : "cycleStart expected",
+      15 : "cycleEnd expected",
+      16 : "comma expected",
+      17 : "number expected",
+      18 : "newline expected",
+      19 : "\"(\" expected",
+      20 : "??? expected",
+      21 : "invalid GENERALSTATEMENT",
+      22 : "invalid BLOCKSTATEMENT",
+      23 : "invalid LINESTATEMENT",
+      24 : "invalid VALUE",
       }
 
 

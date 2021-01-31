@@ -1,220 +1,181 @@
-COMPILER STATEMENT
+COMPILER ALNG
+# Create an array of 1000 memory registers
+   VARS = [ 0 ] * 1000
+
+   def getSpix( self ):
+      varName = self.token.val.upper()   # Grab the most recently parsed lexeme
+
+      if len(varName) >= 2:
+         return 26*(ord(varName[1])-ord('A'))+(ord(varName[0])-ord('A'))
+      else:
+         return ord(varName[0])-ord('A')
+
+   def getNumber( self ):
+      return float(self.token.val)
+
+   def newVar( self, spix ):
+      self.VARS[ spix ] = 0
+
+   def getVar( self, spix ):
+      return self.VARS[ spix ]
+
+   def writeVal( self, val ):
+      print(val)
+
+   def setVar( self, spix, val ):
+      self.VARS[ spix ] = val
+
+   def shouldWrite(self):
+     self._shouldWrite = True
+
+   def writeValIfShould(self, spix):
+     if self._shouldWrite:
+       self.writeVal(self.getVar(spix))
+       self._shouldWrite = False
+
 IGNORECASE
 CHARACTERS
-digit = '0'..'9'.
-varname = 'a'..'z'.
-space = ' '.
-TOKENS
-assign = "assign".
-// arithmetical operations
-mul = "mul".
-div = "div".
-plus = "plu".
-minus = "minus".
-// block
-blockStart = "begin".
-blockEnd = "end".
-// cycle
-cycleStart = "cycle(" | ("cycle" [space] space).
-cycleEnd = ")".
-// elements
-float = digit {digit} '.' digit {digit} ['E' ['+' | '-'] digit {digit}].
-identifier = varname.
-newline = "nl".
-IGNORE '\t' + '\r' + '\n' + ' '
-PRODUCTIONS
-STATEMENT <out n>
-(. n = 0 .)
-= identifier assign float (. print(n) .).
-
-LITERAL<out x> = float (. n = int(self.token.val .).
-
-//
-//= { "calc"
-//Expr<out n> (. print(n) .)
-//}.
-/*-------------------------------------------------------------*/
-//Expr<out n>
-//= Term<out n>
-//{ '+'
-//Term<out n1> (. n = n + n1; .)
-//}.
-/*-------------------------------------------------------------*/
-//Term<out n>
-//(. n = 0; .)
-//= number (. n = int(self.token.val) .)
-//.
-END STATEMENT.
-
-
-//
-
-COMPILER C
-
-/* An attempt to describe a subset of C */
-
-CHARACTERS
-  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
-  digit    = "0123456789" .
-  hexdigit = digit + "ABCDEFabcdef" .
-  tab      = CHR(9) .
-  eol      = CHR(10) .
-  files    = letter + digit + ":\\." .
-  chars    = CHR(32) .. CHR(255) - "'" .
-  strings  = CHR(32) .. CHR(255) - '"'.
-  macros   = ANY - eol .
+    digit = '0'..'9'.
+    varname = 'a'..'z'.
+    space = ' '.
+    letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    tab = CHR(9) .
+    eol = CHR(10) .
+    ret = CHR(13) .
 
 TOKENS
-  identifier = ( "_" | letter) { "_" | letter | digit } .
-  number     = digit { digit } [ "." { digit }] [ "U" | "u" | "L" | "l" ] .
-  hexnumber  = "0" ( "x" | "X" ) hexdigit { hexdigit } [ "U" | "u" | "L" | "l" ] .
-  string     = '"' { strings } '"' .
-  char       = "'" [ "\\" ] chars "'" .
-  library    = "<" files { files } ">" .
+    identifier  = letter {letter | digit} .
+    print = "out" .
+    result = "<-" .
+    assign = "assign" .
+        // arithmetical operations
+    mul = "mul" .
+    div = "div" .
+    plu = "plu" .
+    min = "minus" .
+    inc = "inc" .
+    dec = "dec" .
+        // block
+    blockStart = "begin" .
+    blockEnd = "end" .
+        // condition
+    if = "cond" .
+        // cycle
+    cycleStart = "cycle(" | ("cycle" [space] "(") .
+    cycleEnd = ")" .
+    comma = "," .
+        // elements
+    number = digit {digit} '.' digit {digit} ['E' ['+' | '-'] digit {digit}] .
+    newline = "nl" .
 
-PRAGMAS
-  PreProcessor = "#" {macros} .
-
+COMMENTS FROM "--" TO eol
 COMMENTS FROM "/*" TO "*/"
 
-IGNORE tab + eol + CHR(13)
+IGNORE eol + ret + tab
+
 
 PRODUCTIONS
 
-  C                    = { Definition } EOF .
+    ALNG
+        = GENERALSTATEMENT
+        [ GENERALSTATEMENT ] .
 
-/* Variable and Type Definitions */
+    GENERALSTATEMENT
+        = BLOCKSTATEMENT
+        | LINESTATEMENT .
 
-  Definition           = [ StorageClass ] Type { "*" } identifier
-                            ( FunctionDefinition | VarList ";" ) .
+    BLOCKSTATEMENT
+        = CYCLESTATEMENT
+        | CONDITIONSTATEMENT .
 
-  StorageClass         = "auto" | "extern" | "register" | "static" .
+    LINESTATEMENT
+        = RESULTSTATEMENT
+        | NONRESULTSTATEMENT .
 
-  Type                 =  "short" [ "int" ]
-                         | "long" [ "int" | "float" ]
-                         | "unsigned" [ "char" | "int" | "long" ]
-                         | "char" | "int" | "float" | "double" | "void" .
+    CYCLESTATEMENT
+        = cycleStart
+        [ LINESTATEMENT ] comma
+        [ RESULTSTATEMENT ] comma
+        [ LINESTATEMENT ] cycleEnd
+        blockStart
+        GENERALSTATEMENT
+        blockEnd .
 
-  VarList              = ArraySize { "," { "*" } identifier ArraySize } .
+    CONDITIONSTATEMENT
+        = if
+        RESULTSTATEMENT
+        blockStart
+        GENERALSTATEMENT
+        blockEnd .
 
-  ArraySize            = { "[" [ ConstExpression ] "]" } .
+    RESULTSTATEMENT
+        =
+        result
+        LOWEXPR<out val>
+        newline .
 
-/* Function Definitions */
+    NONRESULTSTATEMENT
+      =
+        { print (. self.shouldWrite() .) }
+        IDENTIFIER<out spix>
+        assign LOWEXPR<out val> (. self.setVar(spix, val)  .)
+        newline (. self.writeValIfShould(spix) .)
+      .
 
-  FunctionDefinition   = FunctionHeader ( ";" | FunctionBody ) .
-  FunctionHeader       = "(" [ FormalParamList ] ")" .
-  FunctionBody         = CompoundStatement .
-  FormalParamList      = FormalParameter { "," FormalParameter } .
-  FormalParameter      = Type { "*" } [ identifier ] ArraySize .
+    LOWEXPR<out exprVal>
+      =
+        HIGHEXPR<out exprVal>
+        {  plu HIGHEXPR<out termVal>            (. exprVal += termVal .)
+        |  min HIGHEXPR<out termVal>            (. exprVal -= termVal .)
+        }
+      .
 
-/* Statements */
+    HIGHEXPR<out termVal>
+      =
+        VALUE<out termVal>
+        {  mul VALUE<out factVal>            (. termVal *= factVal .)
+        |  div VALUE<out factVal>            (. termVal /= factVal .)
+        }
+      .
 
-  Statement            = { Label }
-                         (  AssignmentExpression | BreakStatement
-                           | CompoundStatement | ContinueStatement
-                           | DoStatement | ForStatement
-                           | IfStatement  | NullStatement
-                           | ReturnStatement | SwitchStatement
-                           | WhileStatement ) .
+    VALUE<out factVal>
+      =
+        IDENTIFIER<out spix>                  (. factVal = self.getVar(spix) .)
+        |  number                           (. factVal = self.getNumber()  .)
+        | '(' LOWEXPR<out factVal> ')'
+      .
 
-  Label                = "case" ConstExpression ":"  |  "default" ":" .
+    IDENTIFIER<out spix>
+      = identifier                           (. spix = self.getSpix()   .)
+      .
 
-/* There is no requirement that a switch statement be followed by a compound
-   statement.  Actually labels may be even more general */
-
-  AssignmentExpression = Expression ";" .
-
-  BreakStatement       = "break" ";" .
-
-  CompoundStatement    = "{" { LocalDeclaration } { Statement } "}" .
-
-  ContinueStatement    = "continue" ";" .
-
-  DoStatement          = "do" Statement "while" "(" Expression ")" ";" .
-
-  ForStatement         = "for"  "(" [ Expression ] ";" [ Expression ] ";" [ Expression ] ")" Statement .
-
-  IfStatement          = "if" "(" Expression ")" Statement [ "else" Statement ] .
-
-  NullStatement        = ";" .
-
-  ReturnStatement      = "return" [ Expression ] ";" .
-                         /* Expression usually in parentheses */
-
-  SwitchStatement      = "switch" "(" Expression ")" Statement .
-
-  WhileStatement       = "while" "(" Expression ")" Statement .
-
-/* LocalDeclarations */
-
-  LocalDeclaration     = [ StorageClass ] Type { "*" } identifier
-                          ( FunctionHeader | VarList ) ";"  .
-
-/* Expressions, based on Kernighan and Ritchie: "The C Programming Language".
-   There does not seem to be a way to make this work in an LL(1) fashion,
-   but this generates a "working" parser */
-
-  ConstExpression      = Expression .
-
-  Expression           = Conditional { AssignmentOperator Expression }.
-
-  Conditional          = LogORExp .
-
-  LogORExp             = LogANDExp   { "||" LogANDExp } .
-
-  LogANDExp            = InclORExp   { "&&" InclORExp }.
-
-  InclORExp            = ExclORExp   { "|" ExclORExp } .
-
-  ExclORExp            = ANDExp      { "^" ANDExp } .
-
-  ANDExp               = EqualExp    { "&" EqualExp } .
-
-  EqualExp             = RelationExp { ( "==" | "!=" ) RelationExp } .
-
-  RelationExp          = ShiftExp    { ( "<" | ">" | "<=" | ">=" ) ShiftExp }.
-
-  ShiftExp             = AddExp      { ( "<<" | ">>" ) AddExp } .
-
-  AddExp               = MultExp     { ( "+" | "-" ) MultExp } .
-
-  MultExp              = CastExp     { ( "*" | "/" | "%" ) CastExp } .
-
-  CastExp              = UnaryExp .
-
-/* we should really add
-                         | "(" identifier ")" CastExp .
-   but this breaks it badly */
-
-  UnaryExp             = PostFixExp
-                         | ( "++" | "--" ) UnaryExp
-                         | UnaryOperator CastExp .
-
-/* we should really add
-                         | "sizeof" ( UnaryExp | "(" Type ")" ) .
-   but this breaks it badly */
-
-  PostFixExp           = Primary
-                         { "[" Expression "]"
-                          | FunctionCall
-                          | "." identifier
-                          | "->" identifier
-                          | "++"
-                          | "--"
-                         } .
-
-  Primary              = identifier | string | char | number | "(" Expression ")" .
-
-  FunctionCall         = "(" [ ActualParameters ] ")" .
-
-  ActualParameters     = Expression { "," Expression } .
-
-  AssignmentOperator   =   "="  | "*=" | "/=" | "%=" | "+=" | "-=" | "&="
-                         | "^=" | "|=" | "<<=" | ">>=" .
-
-  UnaryOperator        = "+" | "-" | "*" | "!" | "&" | "~" .
-
-END C.
+//  Expression           = Conditional { AssignmentOperator Expression }.
+//
+//  Conditional          = LogORExp .
+//
+//  LogORExp             = LogANDExp   { "||" LogANDExp } .
+//
+//  LogANDExp            = InclORExp   { "&&" InclORExp }.
+//
+//  InclORExp            = ExclORExp   { "|" ExclORExp } .
+//
+//  ExclORExp            = ANDExp      { "^" ANDExp } .
+//
+//  ANDExp               = EqualExp    { "&" EqualExp } .
+//
+//  EqualExp             = RelationExp { ( "==" | "!=" ) RelationExp } .
+//
+//  RelationExp          = ShiftExp    { ( "<" | ">" | "<=" | ">=" ) ShiftExp }.
+//
+//  ShiftExp             = AddExp      { ( "<<" | ">>" ) AddExp } .
+//
+//  AddExp               = MultExp     { ( "+" | "-" ) MultExp } .
+//
+//  MultExp              = CastExp     { ( "*" | "/" | "%" ) CastExp } .
+//
+//  CastExp              = UnaryExp .
+//
+END ALNG.
 
 
 
