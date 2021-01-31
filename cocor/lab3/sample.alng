@@ -1,1 +1,13 @@
-<- 2.0 plu 2.0 nl
+cond <- _arr{_i} -eq True nl
+begin
+    _varname assign _i mul _k plu 2.23 nl
+    _arr{_i} assign _varname nl
+end
+cycle(
+    _i assign 1.23 nl,
+    <- _i mul _k -le 4.24 nl,
+    _i assign inc _i nl)
+begin
+    _varname assign _i mul _k plu 2.23 nl
+    _arr{_i} assign _varname nl
+end

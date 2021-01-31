@@ -88,17 +88,17 @@ class Scanner(object):
    eofSym  = 0
 
    charSetSize = 256
-   maxT = 20
-   noSym = 20
+   maxT = 24
+   noSym = 24
    start = [
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-     0,  0,  0,  0,  0,  0,  0,  0, 19,  6,  0,  0,  7,  0,  0,  0,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  0,  0,  2,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0, 74, 57,  0,  0, 58,  1,  0,  0,
+    59, 59, 59, 59, 59, 59, 59, 59, 59, 59,  0,  0, 20,  0,  0,  0,
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-     0,  1,  1, 14,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  7,
+     0, 22, 44, 69, 68, 49, 12,  0,  0, 39,  0,  0,  0, 67, 65, 17,
+    32,  0,  0,  0,  9,  0,  0,  0,  0,  0,  0, 75,  0, 76,  0,  0,
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -222,30 +222,6 @@ class Scanner(object):
 
    def CheckLiteral( self ):
       lit = self.t.val.lower()
-      if lit == "out":
-         self.t.kind = 2
-      elif lit == "assign":
-         self.t.kind = 4
-      elif lit == "mul":
-         self.t.kind = 5
-      elif lit == "div":
-         self.t.kind = 6
-      elif lit == "plu":
-         self.t.kind = 7
-      elif lit == "minus":
-         self.t.kind = 8
-      elif lit == "inc":
-         self.t.kind = 9
-      elif lit == "dec":
-         self.t.kind = 10
-      elif lit == "begin":
-         self.t.kind = 11
-      elif lit == "end":
-         self.t.kind = 12
-      elif lit == "cond":
-         self.t.kind = 13
-      elif lit == "nl":
-         self.t.kind = 18
 
 
    def NextToken( self ):
@@ -275,58 +251,79 @@ class Scanner(object):
             self.t.kind = Scanner.noSym      # NextCh already done
             done = True
          elif state == 1:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'z'):
+            if self.ch == 'e':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 1
-            else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
-         elif state == 2:
-            if self.ch == '-':
+               state = 2
+            elif self.ch == 'l':
                buf += unicode(self.ch)
                self.NextCh()
                state = 3
-            else:
-               self.t.kind = Scanner.noSym
-               done = True
-         elif state == 3:
-            self.t.kind = 3
-            done = True
-         elif state == 4:
-            if self.ch == '(':
+            elif self.ch == 'g':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 4
+            elif self.ch == 'n':
                buf += unicode(self.ch)
                self.NextCh()
                state = 5
             else:
                self.t.kind = Scanner.noSym
                done = True
-         elif state == 5:
-            self.t.kind = 14
-            done = True
-         elif state == 6:
-            self.t.kind = 15
-            done = True
-         elif state == 7:
-            self.t.kind = 16
-            done = True
-         elif state == 8:
-            if (self.ch >= '0' and self.ch <= '9'):
+         elif state == 2:
+            if self.ch == 'q':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 8
-            elif self.ch == '.':
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 9
+               state = 6
             else:
                self.t.kind = Scanner.noSym
                done = True
+         elif state == 3:
+            if self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 6
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 4:
+            if self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 6
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 5:
+            if self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 6
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 6:
+            self.t.kind = 1
+            done = True
+         elif state == 7:
+            if (self.ch >= 'a' and self.ch <= 'z'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 8
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 8:
+            if (self.ch >= '0' and self.ch <= '9'
+                 or self.ch >= 'a' and self.ch <= 'z'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 8
+            else:
+               self.t.kind = 2
+               done = True
          elif state == 9:
-            if (self.ch >= '0' and self.ch <= '9'):
+            if self.ch == 'r':
                buf += unicode(self.ch)
                self.NextCh()
                state = 10
@@ -334,32 +331,23 @@ class Scanner(object):
                self.t.kind = Scanner.noSym
                done = True
          elif state == 10:
-            if (self.ch >= '0' and self.ch <= '9'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 10
-            elif self.ch == 'e':
+            if self.ch == 'u':
                buf += unicode(self.ch)
                self.NextCh()
                state = 11
             else:
-               self.t.kind = 17
+               self.t.kind = Scanner.noSym
                done = True
          elif state == 11:
-            if (self.ch >= '0' and self.ch <= '9'):
+            if self.ch == 'e':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 13
-            elif (self.ch == '+'
-                 or self.ch == '-'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 12
+               state = 16
             else:
                self.t.kind = Scanner.noSym
                done = True
          elif state == 12:
-            if (self.ch >= '0' and self.ch <= '9'):
+            if self.ch == 'a':
                buf += unicode(self.ch)
                self.NextCh()
                state = 13
@@ -367,98 +355,445 @@ class Scanner(object):
                self.t.kind = Scanner.noSym
                done = True
          elif state == 13:
-            if (self.ch >= '0' and self.ch <= '9'):
+            if self.ch == 'l':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 13
+               state = 14
             else:
-               self.t.kind = 17
+               self.t.kind = Scanner.noSym
                done = True
          elif state == 14:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'x'
-                 or self.ch == 'z'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 1
-            elif self.ch == 'y':
+            if self.ch == 's':
                buf += unicode(self.ch)
                self.NextCh()
                state = 15
             else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
+               self.t.kind = Scanner.noSym
+               done = True
          elif state == 15:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'b'
-                 or self.ch >= 'd' and self.ch <= 'z'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 1
-            elif self.ch == 'c':
+            if self.ch == 'e':
                buf += unicode(self.ch)
                self.NextCh()
                state = 16
             else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
+               self.t.kind = Scanner.noSym
+               done = True
          elif state == 16:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'k'
-                 or self.ch >= 'm' and self.ch <= 'z'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 1
-            elif self.ch == 'l':
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 17
-            else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
+            self.t.kind = 3
+            done = True
          elif state == 17:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'd'
-                 or self.ch >= 'f' and self.ch <= 'z'):
-               buf += unicode(self.ch)
-               self.NextCh()
-               state = 1
-            elif self.ch == 'e':
+            if self.ch == 'u':
                buf += unicode(self.ch)
                self.NextCh()
                state = 18
             else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
+               self.t.kind = Scanner.noSym
+               done = True
          elif state == 18:
-            if (self.ch >= '0' and self.ch <= '9'
-                 or self.ch >= 'a' and self.ch <= 'z'):
+            if self.ch == 't':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 1
-            elif (self.ch == ' '):
+               state = 19
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 19:
+            self.t.kind = 4
+            done = True
+         elif state == 20:
+            if self.ch == '-':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 4
+               state = 21
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 21:
+            self.t.kind = 5
+            done = True
+         elif state == 22:
+            if self.ch == 's':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 23
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 23:
+            if self.ch == 's':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 24
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 24:
+            if self.ch == 'i':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 25
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 25:
+            if self.ch == 'g':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 26
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 26:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 27
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 27:
+            self.t.kind = 6
+            done = True
+         elif state == 28:
+            if self.ch == 'l':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 29
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 29:
+            self.t.kind = 7
+            done = True
+         elif state == 30:
+            if self.ch == 'v':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 31
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 31:
+            self.t.kind = 8
+            done = True
+         elif state == 32:
+            if self.ch == 'l':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 33
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 33:
+            if self.ch == 'u':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 34
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 34:
+            self.t.kind = 9
+            done = True
+         elif state == 35:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 36
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 36:
+            if self.ch == 'u':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 37
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 37:
+            if self.ch == 's':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 38
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 38:
+            self.t.kind = 10
+            done = True
+         elif state == 39:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 40
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 40:
+            if self.ch == 'c':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 41
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 41:
+            self.t.kind = 11
+            done = True
+         elif state == 42:
+            if self.ch == 'c':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 43
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 43:
+            self.t.kind = 12
+            done = True
+         elif state == 44:
+            if self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 45
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 45:
+            if self.ch == 'g':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 46
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 46:
+            if self.ch == 'i':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 47
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 47:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 48
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 48:
+            self.t.kind = 13
+            done = True
+         elif state == 49:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 50
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 50:
+            if self.ch == 'd':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 51
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 51:
+            self.t.kind = 14
+            done = True
+         elif state == 52:
+            if self.ch == 'n':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 53
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 53:
+            if self.ch == 'd':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 54
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 54:
+            self.t.kind = 15
+            done = True
+         elif state == 55:
+            if self.ch == '(':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 56
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 56:
+            self.t.kind = 16
+            done = True
+         elif state == 57:
+            self.t.kind = 17
+            done = True
+         elif state == 58:
+            self.t.kind = 18
+            done = True
+         elif state == 59:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 59
+            elif self.ch == '.':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 60
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 60:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 61
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 61:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 61
+            elif self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 62
+            else:
+               self.t.kind = 19
+               done = True
+         elif state == 62:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 64
+            elif (self.ch == '+'
+                 or self.ch == '-'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 63
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 63:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 64
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 64:
+            if (self.ch >= '0' and self.ch <= '9'):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 64
+            else:
+               self.t.kind = 19
+               done = True
+         elif state == 65:
+            if self.ch == 'l':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 66
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 66:
+            self.t.kind = 20
+            done = True
+         elif state == 67:
+            if self.ch == 'u':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 28
+            elif self.ch == 'i':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 35
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 68:
+            if self.ch == 'i':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 30
+            elif self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 42
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 69:
+            if self.ch == 'o':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 52
+            elif self.ch == 'y':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 70
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 70:
+            if self.ch == 'c':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 71
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 71:
+            if self.ch == 'l':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 72
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 72:
+            if self.ch == 'e':
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 73
+            else:
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 73:
+            if (self.ch == ' '):
+               buf += unicode(self.ch)
+               self.NextCh()
+               state = 55
             elif self.ch == '(':
                buf += unicode(self.ch)
                self.NextCh()
-               state = 5
+               state = 56
             else:
-               self.t.kind = 1
-               self.t.val = buf
-               self.CheckLiteral()
-               return self.t
-         elif state == 19:
-            self.t.kind = 19
+               self.t.kind = Scanner.noSym
+               done = True
+         elif state == 74:
+            self.t.kind = 21
+            done = True
+         elif state == 75:
+            self.t.kind = 22
+            done = True
+         elif state == 76:
+            self.t.kind = 23
             done = True
 
       self.t.val = buf

@@ -44,7 +44,9 @@ CHARACTERS
     ret = CHR(13) .
 
 TOKENS
-    identifier  = letter {letter | digit} .
+    comparables = "-" ("eq" | "le" | "ge" | "ne") .
+    identifier  = "_" letter {letter | digit}.
+    boolean = "True" | "False" .
     print = "out" .
     result = "<-" .
     assign = "assign" .
@@ -55,6 +57,7 @@ TOKENS
     min = "minus" .
     inc = "inc" .
     dec = "dec" .
+        // comparables
         // block
     blockStart = "begin" .
     blockEnd = "end" .
@@ -98,56 +101,63 @@ PRODUCTIONS
         [ RESULTSTATEMENT ] comma
         [ LINESTATEMENT ] cycleEnd
         blockStart
-        GENERALSTATEMENT
+        GENERALSTATEMENT [GENERALSTATEMENT]
         blockEnd .
 
     CONDITIONSTATEMENT
         = if
         RESULTSTATEMENT
         blockStart
-        GENERALSTATEMENT
+        GENERALSTATEMENT [GENERALSTATEMENT]
         blockEnd .
 
     RESULTSTATEMENT
         =
         result
-        LOWEXPR<out val>
+        LOWESTEXR
         newline .
 
     NONRESULTSTATEMENT
       =
-        { print (. self.shouldWrite() .) }
-        IDENTIFIER<out spix>
-        assign LOWEXPR<out val> (. self.setVar(spix, val)  .)
-        newline (. self.writeValIfShould(spix) .)
+        { print }
+        IDENTIFIER
+        assign LOWESTEXR
+        newline
       .
 
-    LOWEXPR<out exprVal>
+    LOWESTEXR
       =
-        HIGHEXPR<out exprVal>
-        {  plu HIGHEXPR<out termVal>            (. exprVal += termVal .)
-        |  min HIGHEXPR<out termVal>            (. exprVal -= termVal .)
+        LOWEXPR
+        { comparables LOWEXPR } .
+
+    LOWEXPR
+      =
+        HIGHEXPR
+        {  plu HIGHEXPR
+        |  min HIGHEXPR
         }
       .
 
-    HIGHEXPR<out termVal>
+    HIGHEXPR
       =
-        VALUE<out termVal>
-        {  mul VALUE<out factVal>            (. termVal *= factVal .)
-        |  div VALUE<out factVal>            (. termVal /= factVal .)
+        VALUE
+        {  mul VALUE
+        |  div VALUE
         }
       .
 
-    VALUE<out factVal>
+    VALUE
       =
-        IDENTIFIER<out spix>                  (. factVal = self.getVar(spix) .)
-        |  number                           (. factVal = self.getNumber()  .)
-        | '(' LOWEXPR<out factVal> ')'
+        { UNARYOPERATION }
+        IDENTIFIER
+        | number
+        | boolean
+        | '(' LOWEXPR ')'
       .
 
-    IDENTIFIER<out spix>
-      = identifier                           (. spix = self.getSpix()   .)
-      .
+    UNARYOPERATION = inc | dec .
+
+    IDENTIFIER = identifier [ "{" identifier "}" ].
 
 //  Expression           = Conditional { AssignmentOperator Expression }.
 //
