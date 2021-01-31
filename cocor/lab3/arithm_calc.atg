@@ -1,0 +1,97 @@
+COMPILER ARITHMETICAL
+   # Create an array of 1000 memory registers
+   VARS = [ 0 ] * 1000
+
+   def getSpix( self ):
+      varName = self.token.val.upper()   # Grab the most recently parsed lexeme
+
+      if len(varName) >= 2:
+         return 26*(ord(varName[1])-ord('A'))+(ord(varName[0])-ord('A'))
+      else:
+         return ord(varName[0])-ord('A')
+
+   def getNumber( self ):
+      return int(self.token.val)
+
+   def newVar( self, spix ):
+      self.VARS[ spix ] = 0
+
+   def getVar( self, spix ):
+      return self.VARS[ spix ]
+
+   def writeVal( self, val ):
+      print(val)
+
+   def setVar( self, spix, val ):
+      self.VARS[ spix ] = val
+
+   def shouldWrite(self):
+     self._shouldWrite = True
+
+   def writeValIfShould(self, spix):
+     if self._shouldWrite:
+       self.writeVal(self.getVar(spix))
+       self._shouldWrite = False
+
+IGNORECASE
+
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+  digit  = "0123456789".
+  eol    = CHR(13) .
+  lf     = CHR(10) .
+TOKENS
+  ident  = letter {letter | digit} .
+  number = digit {digit} .
+  assign = "assign" .
+  minus = "minus" .
+  plus = "plu" .
+  multiply = "mul" .
+  divide = "div" .
+  print = "out" .
+  newline = "nl" .
+
+COMMENTS
+  FROM "--" TO eol
+
+IGNORE eol + lf
+
+PRODUCTIONS
+  ARITHMETICAL = STATEMENT { STATEMENT } .
+
+  STATEMENT
+    =
+      { print (. self.shouldWrite() .) }
+      IDENTIFIER<out spix>
+      { assign LOWEXPR<out val> (. self.setVar(spix, val)  .) }
+      newline (. self.writeValIfShould(spix) .)
+    .
+
+  LOWEXPR<out exprVal>
+    =
+      HIGHEXPR<out exprVal>
+      {  plus HIGHEXPR<out termVal>            (. exprVal += termVal .)
+      |  minus HIGHEXPR<out termVal>            (. exprVal -= termVal .)
+      }
+    .
+
+  HIGHEXPR<out termVal>
+    =
+      VALUE<out termVal>
+      {  multiply VALUE<out factVal>            (. termVal *= factVal .)
+      |  divide VALUE<out factVal>            (. termVal /= factVal .)
+      }
+    .
+
+  VALUE<out factVal>
+    =
+         IDENTIFIER<out spix>                  (. factVal = self.getVar(spix) .)
+      |  number                           (. factVal = self.getNumber()  .)
+      | '(' LOWEXPR<out factVal> ')'
+    .
+
+  IDENTIFIER<out spix>
+    = ident                               (. spix = self.getSpix()   .)
+    .
+
+END ARITHMETICAL.

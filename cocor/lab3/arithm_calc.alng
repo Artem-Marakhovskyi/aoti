@@ -1,0 +1,6 @@
+out a assign 1 plu 4 nl
+out b assign 36 div (9 plu 3) nl
+c assign 5 nl
+d assign c nl
+out d nl
+out c nl

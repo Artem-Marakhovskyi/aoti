@@ -1,0 +1,23 @@
+COMPILER Sample
+CHARACTERS
+digit = '0'..'9'.
+TOKENS
+number = digit {digit}.
+IGNORE '\r' + '\n'
+PRODUCTIONS
+Sample <out n>
+= { "calc"
+Expr<out n> (. print(n) .)
+}.
+/*-------------------------------------------------------------*/
+Expr<out n>
+= Term<out n>
+{ '+'
+Term<out n1> (. n = n + n1; .)
+}.
+/*-------------------------------------------------------------*/
+Term<out n>
+(. n = 0; .)
+= number (. n = int(self.token.val) .)
+.
+END Sample.
