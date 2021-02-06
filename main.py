@@ -1,7 +1,7 @@
 import lexer
 
-from aoti.syntax_analyzer import SyntaxAnalyzer, SyntaxAnalyzerError
-from aoti.token_enum import TokenEnum
+from syntax_analyzer import SyntaxAnalyzer, SyntaxAnalyzerError
+from token_enum import TokenEnum
 
 
 def read_and_run_lexer(filename = None):
@@ -14,7 +14,7 @@ def get_file_content(filename):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    filename = 'lang_samples/statement.alng'
+    filename = 'lang_samples/for.alng'
     print(get_file_content(filename))
     tokens = read_and_run_lexer(filename)
     for x in read_and_run_lexer(filename):

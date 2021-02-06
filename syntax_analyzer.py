@@ -1,6 +1,6 @@
 from aifc import Error
-from aoti.rules_enum import RulesEnum
-from aoti.token_enum import TokenEnum
+from rules_enum import RulesEnum
+from token_enum import TokenEnum
 
 
 class SyntaxAnalyzer:

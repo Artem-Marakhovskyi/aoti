@@ -1,6 +1,6 @@
 import re
 
-from aoti.token_enum import TokenEnum
+from token_enum import TokenEnum
 
 
 class Token:
